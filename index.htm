@@ -33,18 +33,10 @@ font-size: small;
 }
 </style> 
 
-<script type="text/javascript" src="./Google Maps JavaScript API v3 Example_ Fusion Tables Layer_files/jsapi"></script>
-<script type="text/javascript" src="./Google Maps JavaScript API v3 Example_ Fusion Tables Layer_files/js"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=geometry,places&sensor=false&language=en&v=3.14"></script>
 <!-- <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.6/src/markerclusterer.js"></script> -->
 
-<script type="text/javascript">
-      var script = '<script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.6/src/markerclusterer';
-      if (document.location.search.indexOf('compiled') !== -1) {
-        script += '_packed';
-      }
-      script += '.js"><' + '/script>';
-      document.write(script);
-</script>
+<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
 
 <script type="text/javascript" id="script">
 	google.load('visualization', '1.0', {"callback":initialize});
@@ -192,16 +184,9 @@ font-size: small;
 </script> 
 </head> 
 <body>
-<b>An example of demonstrating how Google Fusion Tables can be used in conjunction with MarkerClusterer, how spatial queries can be used and how the direction renderers and be used to get directions. Its a part of a project i created for my data visualization class.</b>
+<b>JAC Grads</b>
 <p>
-Ayush Shrestha<br>
-Visualization lab<br>
-Dept. of Computer Science <br>
-Georgia State University <br>
-ashrestha2 at student dot gsu dot edu <br>
-<br>
-Dataset id: 2120121 (which in turn has been imported from 423292)
-</p>
+
 <div id="map-filter">
 <p>Search for Wikipedia articles in 
 		</p><form>		
