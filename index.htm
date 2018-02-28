@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)https://grid.cs.gsu.edu/~ashrestha2/vis/prjmap2.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no"> 
+ 
+
+<title>JAC Grads</title> 
+
+<style type="text/css">
+body {
+margin: 0;
+padding: 10px 20px 20px;
+font-family: Arial;
+font-size: 16px;
+}
+#map-container {
+padding: 6px;
+border-width: 1px;
+border-style: solid;
+border-color: #ccc #ccc #999 #ccc;
+-webkit-box-shadow: rgba(64, 64, 64, 0.5) 0 2px 5px;
+-moz-box-shadow: rgba(64, 64, 64, 0.5) 0 2px 5px;
+box-shadow: rgba(64, 64, 64, 0.1) 0 2px 5px;
+width: 1000px;
+}
+#map-canvas {
+width: 1000px;
+height: 500px;
+}
+
+#info-container{
+font-size: small;
+}
+</style> 
+
+<script type="text/javascript" src="./Google Maps JavaScript API v3 Example_ Fusion Tables Layer_files/jsapi"></script>
+<script type="text/javascript" src="./Google Maps JavaScript API v3 Example_ Fusion Tables Layer_files/js"></script>
+<!-- <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.6/src/markerclusterer.js"></script> -->
+
+<script type="text/javascript">
+      var script = '<script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.6/src/markerclusterer';
+      if (document.location.search.indexOf('compiled') !== -1) {
+        script += '_packed';
+      }
+      script += '.js"><' + '/script>';
+      document.write(script);
+</script>
+
+<script type="text/javascript" id="script">
+	google.load('visualization', '1.0', {"callback":initialize});
+		
+	var tableid = 2120121;
+	
+	var mapMain;
+	var markers;
+	
+	var geocoder = new google.maps.Geocoder();
+	var georesults = null;
+	
+	var dataTable = null;
+	var mc = null;
+	var circle = null;	
+	
+	var atlcenter = new google.maps.LatLng(33.755711,-84.388372);
+	var uscenter = new google.maps.LatLng(37.4, -100.1);
+	
+	var directionDisplay;
+   var directionsService = new google.maps.DirectionsService();	
+	
+	function initialize() {
+	 	
+		mapMain = new google.maps.Map(document.getElementById('map-canvas'), {
+			center: atlcenter,
+			zoom: 5,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		});
+		directionsDisplay = new google.maps.DirectionsRenderer();
+		directionsDisplay.setMap(mapMain);
+		mc = new MarkerClusterer(mapMain);
+		
+		queryMap("select wikipedia_article, xy from "+tableid);
+		//showQueryArea(atlcenter, 100);
+	}
+	
+	function queryMap(queryText){
+		mc.clearMarkers();
+		markers=[];
+		var query = new google.visualization.Query("https://www.google.com/fusiontables/gvizdata?tq="+encodeURIComponent(queryText));
+		query.send(handleQueryResponse);
+	}
+	
+	function handleQueryResponse(response){
+		dataTable = response.getDataTable();
+		for(var i=0; i< dataTable.getNumberOfRows();i++){			
+			var hrefval = dataTable.getValue(i,0).toString();
+			var arr = dataTable.getValue(i,1).toString().split(" ");			
+			var latlng = new google.maps.LatLng(arr[0], arr[1]);
+			
+			var marker = new google.maps.Marker({
+				position: latlng,
+				map:mapMain
+			});
+	
+			fn = markerClick(i, marker);
+			google.maps.event.addListener(marker,'click', fn);			
+			
+			markers.push(marker);
+		
+		}
+		mc.addMarkers(markers);
+	}
+	
+	function markerClick(ix, markerx) {
+		return function(){
+			var hreftemp = (((dataTable.getValue(ix,0).toString().split("http://en.wikipedia.org/wiki/")[1].replace(/%20/g, " ")).replace(/%27/g,"\'")).replace(/%22/g,"\"")).replace(/%[A-Z0-9][A-Z0-9]/g,"");
+			var hrefval = "<div id='info-container'>"+
+			"<a href="+dataTable.getValue(ix,0).toString()+" target='_blank'>"+hreftemp+"</a>"+ 
+			"<br />Get Directions<br />"+
+			"<form>"+
+			"<input type='radio' name='direction' value='from' checked='true' /> From Here "+
+			"<input type='radio' name='direction' value='to' /> To Here <br />"+
+			"<input type='input' name='destination' value=''>"+			
+			"<input type='button' value='Go' onclick='getDirections("+markerx.getPosition().lat()+","+markerx.getPosition().lng()+",destination.value, direction.value);'>"+
+			"</form>"+
+			"</div>";
+			
+    		var infoWin = new google.maps.InfoWindow({content: hrefval});
+    		infoWin.open(mapMain, markerx);
+    	}
+  	}
+  	
+  	function getDirections(mlat, mlng, address, direction){
+  
+		if(address != null || address.value.trim() != ""){
+			geocoder.geocode( { 'address': address}, function(results, status) {
+		      if (status != google.maps.GeocoderStatus.OK) {
+		        alert("Geocode was not successful for the following reason: " + status);
+		      }
+				var start, end;		   	
+		   	if(direction == "from"){ 
+					start = new google.maps.LatLng(mlat, mlng);
+					end = results[0].geometry.location;
+				} else {
+					start = results[0].geometry.location;
+					end = new google.maps.LatLng(mlat, mlng);
+				}
+				
+				
+				var request = {
+	          origin: start,
+	          destination: end,
+	          travelMode: google.maps.DirectionsTravelMode.DRIVING
+	        };
+	
+	        directionsService.route(request, function(response, status) {
+	          if (status == google.maps.DirectionsStatus.OK) {
+	            directionsDisplay.setDirections(response);
+	          }
+	          else alert(status);
+	        });
+				
+		    });
+		}
+	}
+  	
+  	function showQueryArea(center, radius){
+  		circle = new google.maps.Circle({
+		    center: center,
+		    radius: (radius*1609.344),
+		    map: mapMain,
+		    fillOpacity: 0.0,
+		    strokeOpacity: 0.0,
+		    strokeWeight: 1
+		  });
+		mapMain.fitBounds(circle.getBounds());
+	}
+	
+	function searchIt(miles, address){
+		var query = "select wikipedia_article, xy from "+tableid;		
+		if(address != null || address.value.trim() != ""){
+			geocoder.geocode( { 'address': address}, function(results, status) {
+		      if (status != google.maps.GeocoderStatus.OK) {
+		        alert("Geocode was not successful for the following reason: " + status);
+		      }
+		   	query += " where ST_INTERSECTS(xy, CIRCLE(LATLNG"+results[0].geometry.location.toString()+","+(miles*1609.344)+"))";		   	
+		   	queryMap(query);
+		   	showQueryArea(results[0].geometry.location,miles);	   
+		    });
+		}
+	}
+	
+</script> 
+</head> 
+<body>
+<b>An example of demonstrating how Google Fusion Tables can be used in conjunction with MarkerClusterer, how spatial queries can be used and how the direction renderers and be used to get directions. Its a part of a project i created for my data visualization class.</b>
+<p>
+Ayush Shrestha<br>
+Visualization lab<br>
+Dept. of Computer Science <br>
+Georgia State University <br>
+ashrestha2 at student dot gsu dot edu <br>
+<br>
+Dataset id: 2120121 (which in turn has been imported from 423292)
+</p>
+<div id="map-filter">
+<p>Search for Wikipedia articles in 
+		</p><form>		
+		<select name="miles">
+	      <option value="">--Select--</option>
+	      <option value="1">1 mile</option> 
+	      <option value="2" selected="selected">2 miles</option> 
+	      <option value="5">5 miles</option>
+	      <option value="10">10 miles</option>
+	      <option value="25">25 miles</option>
+	      <option value="50">50 miles</option>
+	      <option value="100">100 miles</option>
+	  </select>
+	  from
+	  <input type="input" name="address" value="Atlanta Downtown" dcvalue="Atlanta Downtown">
+	  <input type="button" value="Find" onclick="searchIt(miles.value, address.value);" dcvalue="Find">
+	  </form>
+	  <p></p>
+</div>
+<div id="map-container">
+<div id="map-canvas">
+</div>
+</div>
+ 
+ 
+
+</body></html>
