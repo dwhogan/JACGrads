@@ -68,8 +68,8 @@ font-size: small;
 			zoom: 5,
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		});
-		directionsDisplay = new google.maps.DirectionsRenderer();
-		directionsDisplay.setMap(mapMain);
+		//directionsDisplay = new google.maps.DirectionsRenderer();
+		//directionsDisplay.setMap(mapMain);
 		mc = new MarkerClusterer(mapMain);
 		
 		queryMap("select wikipedia_article, xy from "+tableid);
