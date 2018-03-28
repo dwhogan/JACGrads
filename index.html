@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+<head>
+   
+<title>AS JAC Map</title> 
+<link href="https://fonts.googleapis.com/css?family=Montserrat:700" rel="stylesheet">
+
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>    
+<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+
+ <style type="text/css">
+   /* Always set the map height explicitly to define the size of the div
+ * element that contains the map. */
+#map-canvas {
+  height: 100%;
+}
+/* Optional: Makes the sample page fill the window. */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+/* Always set the map height explicitly to define the size of the div
+ * element that contains the map. */
+#map-canvas {
+  height: 100%;
+}
+/* Optional: Makes the sample page fill the window. */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* snappy info window. */
+
+.si-float-wrapper {
+  position: absolute;
+  width: 900px; }
+  .si-float-wrapper,
+  .si-float-wrapper * {
+    box-sizing: border-box; }
+
+[class*='si-wrapper'] {
+  display: flex;
+  position: absolute;
+  align-items: center;
+  font-size: 18px;
+  cursor: default; }
+
+.si-wrapper-top {
+  flex-direction: column;
+  margin-top: -40px;
+  margin-left: 0px;
+  transform: translate(-50%, -100%); }
+
+.si-wrapper-bottom {
+  flex-direction: column-reverse;
+  margin-top: 0px;
+  margin-left: 0px;
+  transform: translate(-50%, 0); }
+
+.si-wrapper-left {
+  margin-top: -20px;
+  margin-left: -11px;
+  transform: translate(-100%, -50%); }
+
+.si-wrapper-right {
+  flex-direction: row-reverse;
+  margin-top: -20px;
+  margin-left: 11px;
+  transform: translate(0, -50%); }
+
+[class*='si-shadow-wrapper'] {
+  display: flex;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0.4;
+  z-index: 1; }
+
+.si-shadow-wrapper-top,
+.si-shadow-wrapper-bottom {
+  flex-direction: column; }
+
+.si-shadow-pointer-bottom,
+.si-shadow-pointer-right {
+  order: -1; }
+
+.si-shadow-frame {
+  box-shadow: 20px 20px 0 0 #000; }
+
+[class*='si-shadow-pointer'] {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  margin: auto; }
+
+[class*='si-shadow-inner-pointer'] {
+  position: absolute;
+  width: 141%;
+  height: 141%;
+  box-shadow: 0px 28.28427px 0 0 #000; }
+
+.si-shadow-inner-pointer-top {
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg); }
+
+.si-shadow-inner-pointer-bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%) rotate(-45deg); }
+
+.si-shadow-inner-pointer-left {
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg); }
+
+.si-shadow-inner-pointer-right {
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%) rotate(-45deg); }
+
+.si-frame {
+  position: relative;
+  flex: 1 1 auto;
+  border-radius: 3px;
+  overflow: hidden;
+  z-index: 2; }
+
+.si-content-wrapper {
+  width: 900px;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 60px;
+  background-color: #fff; }
+  .si-has-border .si-content-wrapper {
+    border: 8px solid #2b3031; }
+
+.si-content {
+  overflow: auto; }
+
+.si-close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: 0;
+  outline: none;
+  background-color: transparent;
+  color: inherit;
+  font-family: Arial, Baskerville, monospace;
+  font-size: 2em;
+  cursor: pointer;
+  opacity: 0.7;
+  appearance: none; }
+  .si-close-button:hover, .si-close-button:focus {
+    opacity: 1; }
+
+[class*='si-pointer-border'] {
+  position: absolute;
+  border: 15px solid transparent;
+  z-index: 3; }
+
+[class*='si-pointer-bg'] {
+  position: relative;
+  border: 15px solid transparent;
+  z-index: 4; }
+  .si-has-border [class*='si-pointer-bg'] {
+    border-width: 12px; }
+
+.si-pointer-border-top,
+.si-pointer-border-bottom {
+  left: 50%;
+  transform: translate(-50%, 0); }
+
+.si-pointer-border-left,
+.si-pointer-border-right {
+  top: 50%;
+  transform: translate(0, -50%); }
+
+.si-pointer-top {
+  border-bottom: 0; }
+
+.si-pointer-border-top {
+  bottom: 0;
+  border-top-color: #2b3031; }
+
+.si-pointer-bg-top {
+  border-top-color: #fff; }
+  .si-has-border .si-pointer-bg-top {
+    top: -8px;
+    margin-bottom: 3px; }
+
+.si-pointer-bottom {
+  border-top: 0; }
+
+.si-pointer-border-bottom {
+  top: 0;
+  border-bottom-color: #2b3031; }
+
+.si-pointer-bg-bottom {
+  border-bottom-color: #fff; }
+  .si-has-border .si-pointer-bg-bottom {
+    bottom: -8px;
+    margin-top: 3px; }
+
+.si-pointer-left {
+  border-right: 0; }
+
+.si-pointer-border-left {
+  right: 0;
+  border-left-color: #2b3031; }
+
+.si-pointer-bg-left {
+  border-left-color: #fff; }
+  .si-has-border .si-pointer-bg-left {
+    left: -8px;
+    margin-right: 3px; }
+
+.si-pointer-right {
+  border-left: 0; }
+
+.si-pointer-border-right {
+  left: 0;
+  border-right-color: #2b3031; }
+
+.si-pointer-bg-right {
+  border-right-color: #fff; }
+  .si-has-border .si-pointer-bg-right {
+    right: -8px;
+    margin-left: 3px; }
+    
+    .map-canvas {
+  width: 100%;
+  height: 100%; }
+
+.si-wrapper-top {
+  max-width: 300px; }
+  @media (min-width: 600px) {
+    .si-wrapper-top {
+      max-width: 400px; } }
+  @media (min-width: 992px) {
+    .si-wrapper-top {
+      max-width: 500px; } }
+
+@media (max-width: 991px) {
+  .si-frame {
+    padding: 50px; } }
+
+@media (max-width: 599px) {
+  .si-frame {
+    padding: 40px; } }
+
+.si-close-button {
+  width: 40px;
+  height: 40px; }
+
+.si-content h1 {
+  margin: 0 0 50px;
+  padding: 10px 0;
+  border-top: 2px solid #2b3031;
+  border-bottom: 2px solid #2b3031;
+  font-family: 'Montserrat', sans-serif; }
+
+.si-content hr {
+  margin: 50px 0 0;
+  border-color: #2b3031; }
+
+.si-content em {
+  font-size: 0.85em; }
+
+
+.custom-window {
+  top: 30px;
+  max-width: 400px;
+  -webkit-transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  visibility: hidden; }
+  .custom-window.open .si-frame {
+    overflow: visible; }
+  .custom-window.active {
+    top: 0;
+    opacity: 1;
+    visibility: visible; }
+  .custom-window .si-content-wrapper {
+    padding-bottom: 10px; }
+  .custom-window .si-content {
+    overflow: visible; }
+
+.custom-content {
+  position: relative;
+  max-height: inherit;
+  padding-top: 120px;
+  overflow: auto;
+  z-index: 2; }
+
+.custom-img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 120px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  z-index: 1; }
+
+.custom-header {
+  position: relative;
+  margin: 0;
+  padding: 30px;
+  background-color: #44433e;
+  color: #fff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3); }
+  .custom-header small {
+    display: block;
+    font-size: 0.55em;
+    font-weight: 400;
+    opacity: 0.75; }
+
+.custom-body {
+  padding: 30px;
+  background-color: #fff; }
+  .custom-body p {
+    margin: 0; }
+  .custom-body * + p {
+    margin-top: 1em; }
+  .custom-body a {
+    color: #60a295; }
+    .custom-body a:hover, .custom-body a:focus, .custom-body a:active {
+      color: #437369; }
+
+.custom-close {
+  position: absolute;
+  top: 0;
+  right: -36px;
+  width: 36px;
+  height: 36px;
+  -webkit-transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 0;
+  background-color: rgba(68, 67, 62, 0.8);
+  color: #fff;
+  font-size: 1.5em;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  cursor: pointer; }
+  .custom-close:hover, .custom-close:focus, .custom-close:active {
+    background-color: rgba(28, 28, 26, 0.8); }
+
+@media (min-width: 992px) {
+  .custom-window {
+    max-width: 500px; }
+  .custom-content {
+    padding-top: 160px; }
+  .custom-img {
+    height: 160px; }
+  .custom-header,
+  .custom-body {
+    padding: 40px; } }
+
+
+</style>
+  </head>
+  <body>
+  <div id="map-canvas"></div>  
+
+  <script type="text/javascript">
+   function autorun()
+   {
+//Google visualization library for queying fusion table as a datasource
+        google.load('visualization', '1.0', { "callback": initData });
+
+       // initialize the data
+        function initData() {  // query the fusion table to get the data
+            //https://developers.google.com/chart/interactive/docs/queries
+            // query the fusion table...
+var sql = "SELECT 'Lat', 'Long', 'Name', 'Graduate', 'Position', 'Path', 'Help' FROM 1ydBhsLP-_hHe-YqNyAiM5rG4hkF7B6-mwUY-aAyq ORDER by 'Name'"  // this is the select command sent to the table
+var query = new google.visualization.Query("https://www.google.com/fusiontables/gvizdata?tq=" + encodeURIComponent(sql));  // this is object used to make the REST call to the table
+            // the query object send the select query then calls the initMap function once the response from the table is received
+            query.send(initMap);           
+
+        }
+
+        //initialize the map
+        function initMap(response) {
+            if (response.isError()) {
+                alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+                return;
+            }
+
+            //create the map
+            var map = new google.maps.Map(document.getElementById('map-canvas'), {
+                zoom: 5,
+                center: { lat: 45.506136, lng: -73.60683 }
+            });
+
+            // parse the query response into map markers....
+            //https://developers.google.com/fusiontables/docs/v2/getting_started
+            var dataTable = response.getDataTable(),
+                dataRows = dataTable.Nf,  //is there an API fn for this??
+                numRows = dataTable.getNumberOfRows(),
+                info;  // variable for the info window
+
+            // Create rows as markers to the map.
+            // Note: The code uses the JavaScript Array.prototype.map() method to
+            // create an array of markers based on a given "locations" array.
+            // The map() method here has nothing to do with the Google Maps API.
+            var ftMarkers = dataRows.map(function (dataRow, i) {
+                var row = dataRow.c;  // get the array content of the dataRow
+
+                 return new google.maps.Marker({
+                    clickable: false,
+                    position: new google.maps.LatLng(row[0].v, row[1].v),
+                    label: row[2].v,
+                    graduation: row[3].v,
+                    job: row[4].v,
+                    path: row[5].v,
+                    help: row[6].v
+                });
+            });           
+           
+            // Add a marker clusterer to manage the markers.
+            var markerCluster = new MarkerClusterer(map, ftMarkers,
+                {
+                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+                    zoomOnClick: false  // prevent the zoom effect on cluster click
+                });
+            
+
+            // capture the cluster click event so to display the clusterr data as you like
+var html='<!DOCTYPE html> \
+<html> \
+<head> \
+<meta name="viewport" content="width=device-width, initial-scale=1"> \
+</head> \
+<style> \
+.title { \
+  color: grey; \
+} \
+.button { \
+  border: none; \
+  outline: 0; \
+  display: inline-block; \
+  padding: 8px; \
+  color: white; \
+  background-color: #000; \
+  text-align: center; \
+  cursor: pointer; \
+  width: 100%; \
+} \
+.button:hover { \
+  background-color: #555; \
+} \
+</style> \
+<body>';
+            google.maps.event.addListener(markerCluster, 'clusterclick', function (cluster) {
+                event.preventDefault();  // stop any other event functions
+
+                //build the window content from the markers
+                var markers = cluster.getMarkers();
+
+                // loop through the markers of the cluster
+                for (i = 0, len = markers.length; i < len; i++) {
+                   
+    html += '<div class="column"> \
+    <div class="card"> \
+      <div class="container"> \
+        <h2>' + markers[i].label + '</h2> \
+        <p class="title">' + markers[i].job + '</p> \
+        <p>' + markers[i].path + '</p> \
+        <p><b>What helped me...</b/><br />' + markers[i].help + '</p> \
+        <p><button class="button"></button></p> \
+      </div> \
+    </div> \
+  </div>';                 
+ }
+html +='</body> \
+        </html>';
+
+                info.setContent(html);
+                info.setPosition(markers[0].position);
+                if (!info.isOpen()) {
+                    info.open();
+                }
+                
+
+                // use the global event object to stop click event from bubbling up to the map or the document
+                if (event.stopPropagation) event.stopPropagation();
+               
+            });
+
+
+            //load snazzy info window script    
+             require("https://rawgit.com/atmist/snazzy-info-window/master/dist/snazzy-info-window.min.js", function () {
+                // Add a Snazzy Info Window to the marker once loaded
+
+                info = new SnazzyInfoWindow({
+                    map: map,
+                    closeOnMapClick: false
+                });
+
+               
+            });
+           
+            
+        }
+       
+
+
+        //function to load a script then run code requiring that script
+        function require(url, callback) {
+            var e = document.createElement("script");
+            e.src = url;
+            e.type = "text/javascript";
+            e.addEventListener('load', callback);
+            document.getElementsByTagName("head")[0].appendChild(e);
+        }       
+   }
+   if (window.addEventListener) window.addEventListener("load", autorun, false);
+   else if (window.attachEvent) window.attachEvent("onload", autorun);
+   else window.onload = autorun;
+  </script>
+   
+</body>
+</html>
